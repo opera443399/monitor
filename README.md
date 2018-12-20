@@ -1,1 +1,38 @@
-# oMonitor
+# monitor
+
+2018/12/20
+
+## init
+
+### init data in etcd
+
+```bash
+ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/projects '{"env":"local","data":[{"icon":"👼","name":"demo1","status":"1"},{"icon":"😇","name":"demoproject","status":"1"}]}'
+
+
+ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/accessToken/xxx true
+ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/accessToken/yyy false
+
+```
+
+## run
+
+```bash
+test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
+docker rm -f monitor
+
+docker run -d --restart always \
+    --name monitor \
+    -p "80:12000" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /etc/localtime:/etc/localtime \
+    --cpus "0.5" \
+    --memory "256m" \
+    -e ETCD_BACKEND_NODES="127.0.0.1:2379" \
+    -e DEPLOY_ENV="local" \
+    -e LOG_LEVEL="debug" \
+    opera443399/monitor
+
+docker logs --tail 100 --since 5m -f monitor
+
+```

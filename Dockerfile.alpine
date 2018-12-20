@@ -1,0 +1,7 @@
+FROM alpine:3.8
+
+WORKDIR /
+COPY bin/monitor-linux-arm64 /monitor
+EXPOSE 12000
+
+ENTRYPOINT ["/monitor"]
