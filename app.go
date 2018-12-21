@@ -1,5 +1,5 @@
 /*
- * docker swarm api
+ * about: docker swarm api
  * api ref: https://docs.docker.com/engine/api/v1.37/
  * sdk go: https://godoc.org/github.com/docker/docker/client
  *
@@ -11,7 +11,6 @@
  * [howto]
  * # curl -s --unix-socket /var/run/docker.sock http:/v1.37/services |jq . |more
  *
- * pc@2018/12/20
  */
 
 package main
