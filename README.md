@@ -1,8 +1,8 @@
 # monitor
 
-2018/12/20
+2018/12/21
 
-## init
+## init backend api
 
 ### init data in etcd
 
@@ -15,7 +15,7 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/accessToken/yyy false
 
 ```
 
-## run
+### run backend
 
 ```bash
 test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
@@ -36,3 +36,26 @@ docker run -d --restart always \
 docker logs --tail 100 --since 5m -f monitor
 
 ```
+
+## init app
+
+### init rn
+
+```bash
+# react-native init yourProjectName
+# cd yourProjectName
+# yarn add react-navigation
+# yarn add react-native-gesture-handler
+# react-native link react-native-gesture-handler
+
+```
+
+### run
+
+copy `App.js` and `css.js` to your project, then run the demo on your simulator or device
+
+## snapshots
+
+![HomeScreen](./rn/snapshots/HomeScreen.png)
+![ProjectListScreen](./rn/snapshots/ProjectListScreen.png)
+![ProjectDetailsScreen](./rn/snapshots/ProjectDetailsScreen.png)
