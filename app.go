@@ -52,8 +52,9 @@ func KVRead(key string) (map[string]string, error) {
 	return result, nil
 }
 
-func checkToken(token string) bool {
-	key := config.KVPrefix + "/" + config.DeployEnv + "/accessToken/" + token
+func checkToken(token string, env string) bool {
+	key := config.KVPrefix + "/" + env + "/accessToken/" + token
+	log.Info("runEnv set to: " + env)
 	kvData, err := KVRead(key)
 	log.Debug("[kvstore] result: %v", kvData)
 	if err != nil {
@@ -77,7 +78,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", msg)
 }
 
-// curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx"}' 127.0.0.1/project
+// curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx","runEnv":"local"}' 127.0.0.1/project
 func projectHandler(w http.ResponseWriter, r *http.Request) {
 	data := ParseToken{}
 
@@ -87,11 +88,11 @@ func projectHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error("[json] failed to Unmarshal the payload!")
 		return
 	}
-	if ok := checkToken(data.AccessToken); !ok {
+	if ok := checkToken(data.AccessToken, data.RunEnv); !ok {
 		return
 	}
 
-	key := config.KVPrefix + "/" + config.DeployEnv + "/projects"
+	key := config.KVPrefix + "/" + data.RunEnv + "/projects"
 	kvData, err := KVRead(key)
 	if err != nil {
 		log.Error("[kvstore] failed to fetch data!")
@@ -101,7 +102,7 @@ func projectHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", kvData[key])
 }
 
-// curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx","projectName":"demoproject"}' 127.0.0.1/service
+// curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx","runEnv":"local","projectName":"demoproject"}' 127.0.0.1/service
 func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	svcs := Services{}
 	data := ParseProject{}
@@ -112,13 +113,13 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error("[json] failed to Unmarshal the payload!")
 		return
 	}
-	if ok := checkToken(data.AccessToken); !ok {
+	if ok := checkToken(data.AccessToken, data.RunEnv); !ok {
 		return
 	}
 
-	servicePrefix := config.DeployEnv + "-" + data.ProjectName
+	servicePrefix := data.RunEnv + "-" + data.ProjectName
 
-	svcs.Env = config.DeployEnv
+	svcs.Env = data.RunEnv
 	svcs.ProjectName = data.ProjectName
 
 	cli, err := client.NewEnvClient()

@@ -17,7 +17,6 @@ type Config struct {
 	PrintVersion     bool
 	DockerAPIVersion string
 	LogLevel         string
-	DeployEnv        string
 	KVPrefix         string
 	BackendsConfig
 }
@@ -29,11 +28,6 @@ func processEnv() {
 	dockerAPIVersion := os.Getenv("DOCKER_API_VERSION")
 	if len(dockerAPIVersion) > 0 {
 		config.DockerAPIVersion = dockerAPIVersion
-	}
-
-	deployEnv := os.Getenv("DEPLOY_ENV")
-	if len(deployEnv) > 0 {
-		config.DeployEnv = deployEnv
 	}
 
 	kvPrefix := os.Getenv("KV_PREFIX")
@@ -86,7 +80,6 @@ func initConfig() error {
 	}
 
 	log.Info("KVStore backend set to: " + config.Backend)
-	log.Info("DeployEnv set to: " + config.DeployEnv)
 
 	return nil
 }
@@ -96,7 +89,6 @@ func init() {
 	flag.BoolVar(&config.PrintVersion, "version", false, "print version and exit")
 	flag.StringVar(&config.DockerAPIVersion, "docker-api-ver", "1.37", "set docker API version")
 	flag.StringVar(&config.LogLevel, "log-level", "", "set log level")
-	flag.StringVar(&config.DeployEnv, "env", "local", "set app env")
 	flag.StringVar(&config.KVPrefix, "prefix", "/monitor", "set kv prefix")
 	flag.StringVar(&config.Backend, "backend", "etcdv3", "backend to use")
 	flag.BoolVar(&config.BasicAuth, "basic-auth", false, "Use Basic Auth to authenticate (only used with etcd backends)")

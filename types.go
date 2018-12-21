@@ -16,12 +16,14 @@ type Projects struct {
 //ParseToken save payload from http.Request
 type ParseToken struct {
 	AccessToken string `json:"accessToken"`
+	RunEnv      string `json:"runEnv"`
 }
 
 //ParseProject save payload from http.Request
 type ParseProject struct {
-	ProjectName string `json:"projectName"`
 	AccessToken string `json:"accessToken"`
+	RunEnv      string `json:"runEnv"`
+	ProjectName string `json:"projectName"`
 }
 
 //Service A docker swarm service
