@@ -32,49 +32,39 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
-	backends "github.com/opera443399/kvstore/backends"
 	"github.com/opera443399/monitor/log"
 )
-
-//KVRead get key from kvstore
-func KVRead(key string) (map[string]string, error) {
-	log.Debug("[kvstore] %s: get [%s]", config.BackendNodes, key)
-	storeClient, err := backends.New(config.BackendsConfig)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	result, err := storeClient.GetValues(key)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func checkToken(token string, env string) bool {
-	key := config.KVPrefix + "/" + env + "/accessToken/" + token
-	log.Info("runEnv set to: " + env)
-	kvData, err := KVRead(key)
-	log.Debug("[kvstore] result: %v", kvData)
-	if err != nil {
-		log.Error("[kvstore] invalid token!")
-		return false
-	}
-	if len(kvData) == 0 {
-		log.Error("[kvstore] invalid token!")
-		return false
-	}
-	if kvData[key] != "true" {
-		log.Error("[kvstore] token expired!")
-		return false
-	}
-	return true
-}
 
 // curl 127.0.0.1
 func index(w http.ResponseWriter, r *http.Request) {
 	msg := `{"status": '200'}`
 	fmt.Fprintf(w, "%s\n", msg)
+}
+
+// curl -s -X POST -H "Content-Type:application/json" -d '{"accessID":"admin","accessSecret":"xxx"}' 127.0.0.1/userinfo
+func userInfoHandler(w http.ResponseWriter, r *http.Request) {
+	data := ParseUserInfo{}
+
+	payload, _ := ioutil.ReadAll(r.Body)
+	r.Body.Close()
+	if err := json.Unmarshal(payload, &data); err != nil {
+		log.Error("[json] failed to Unmarshal the payload!")
+		return
+	}
+	// key -> etcd-server/monitor/userinfo/admin/secrets/xxx
+	keyToken := config.KVPrefix + "/userinfo/" + data.AccessID + "/secrets/" + data.AccessSecret
+	if ok := checkToken(keyToken); !ok {
+		return
+	}
+
+	key := config.KVPrefix + "/user/" + data.AccessID
+	kvData, err := kvGetValue(key)
+	if err != nil {
+		log.Error("[kvstore] failed to fetch data!")
+		return
+	}
+	log.Debug("[query-projects] response: %s", kvData[key])
+	fmt.Fprintf(w, "%s\n", kvData[key])
 }
 
 // curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx","runEnv":"local"}' 127.0.0.1/project
@@ -87,12 +77,14 @@ func projectHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error("[json] failed to Unmarshal the payload!")
 		return
 	}
-	if ok := checkToken(data.AccessToken, data.RunEnv); !ok {
+
+	keyToken := config.KVPrefix + "/" + data.RunEnv + "/accessToken/" + data.AccessToken
+	if ok := checkToken(keyToken); !ok {
 		return
 	}
 
 	key := config.KVPrefix + "/" + data.RunEnv + "/projects"
-	kvData, err := KVRead(key)
+	kvData, err := kvGetValue(key)
 	if err != nil {
 		log.Error("[kvstore] failed to fetch data!")
 		return
@@ -112,12 +104,13 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error("[json] failed to Unmarshal the payload!")
 		return
 	}
-	if ok := checkToken(data.AccessToken, data.RunEnv); !ok {
+
+	keyToken := config.KVPrefix + "/" + data.RunEnv + "/accessToken/" + data.AccessToken
+	if ok := checkToken(keyToken); !ok {
 		return
 	}
 
 	servicePrefix := data.RunEnv + "-" + data.ProjectName
-
 	svcs.Env = data.RunEnv
 	svcs.ProjectName = data.ProjectName
 
@@ -171,6 +164,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", index)
+	http.HandleFunc("/userinfo", userInfoHandler)
 	http.HandleFunc("/project", projectHandler)
 	http.HandleFunc("/service", serviceHandler)
 

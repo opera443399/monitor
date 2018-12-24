@@ -15,18 +15,45 @@ docker tag opera443399/whoami hub.demo.com/ns-demo/demo:v1
 
 
 docker service create --name local-demoproject-svc1 --detach=true --with-registry-auth --publish "5001:80" --replicas=1 ns-demo/demo:v1
-docker service create --name local-demoproject-svc2 --detach=true --with-registry-auth --publish "5002:80" --replicas=2 hub.demo.com/demo:v1
+docker service create --name local-demoproject-svc2 --detach=true --with-registry-auth --publish "5002:80" --replicas=2 hub.demo.com/ns-demo/demo:v1
 
 ```
 
 * setup etcd
 
 ```bash
+##### init project info
 ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/projects '{"env":"local","data":[{"icon":"👼","name":"demo1","status":"1"},{"icon":"😇","name":"demoproject","status":"1"}]}'
-
-
+##### init accessToken
 ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/accessToken/xxx true
 ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/accessToken/yyy false
+##### init userinfo
+ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/secrets/xxx true
+ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/env '
+{
+  "data":[
+    {
+      "env":"local",
+      "uriPrefix":"http://127.0.0.1",
+      "accessToken":"xxx"
+    },
+    {
+      "env":"dev",
+      "uriPrefix":"http://127.0.0.1",
+      "accessToken":"xxx"
+    },
+    {
+      "env":"test",
+      "uriPrefix":"http://127.0.0.1",
+      "accessToken":"xxx"
+    },
+    {
+      "env":"prod",
+      "uriPrefix":"http://127.0.0.1",
+      "accessToken":"xxx"
+    }
+  ]
+}'
 
 ```
 
