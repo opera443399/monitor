@@ -19,8 +19,8 @@ YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTIm
 // ------ global var ------
 const uriPrefix = {
   local: 'http://127.0.0.1',
-  dev: 'http://127.0.0.1'',
-  test: 'http://127.0.0.1'',
+  dev: 'http://127.0.0.1',
+  test: 'http://127.0.0.1',
   prod: 'http://127.0.0.1',
 };
 
