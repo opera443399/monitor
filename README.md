@@ -4,9 +4,7 @@
 
 ## POC
 
-### init backend api
-
----
+### Backend init
 
 * create docker-swarm-service
 
@@ -33,49 +31,52 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/accessToken/yyy false
 ```
 
 * run monitor
-    - run local
-    ```bash
-    make
-    ./bin/monitor -port 80 -node "127.0.0.1:2379" -log-level debug
+  * run local
 
-    ```
+  ```bash
+  make
+  ./bin/monitor -port 80 -node "127.0.0.1:2379" -log-level debug
 
-    - run on Linux
-    ```bash
-    test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
-    docker rm -f monitor
+  ```
 
-    docker run -d --restart always \
-        --name monitor \
-        -p "80:12000" \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        -v /etc/localtime:/etc/localtime \
-        -e ETCD_BACKEND_NODES="127.0.0.1:2379" \
-        -e LOG_LEVEL="debug" \
-        opera443399/monitor
+  * run on Linux
 
-    docker logs --tail 100 --since 5m -f monitor
+  ```bash
+  test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
+  docker rm -f monitor
 
-    ```
+  docker run -d --restart always \
+      --name monitor \
+      -p "80:12000" \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v /etc/localtime:/etc/localtime \
+      -e ETCD_BACKEND_NODES="127.0.0.1:2379" \
+      -e LOG_LEVEL="debug" \
+      opera443399/monitor
 
-    - run on Mac
-    ```bash
-    test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
-    docker rm -f monitor
+  docker logs --tail 100 --since 5m -f monitor
 
-    docker run -d --restart always \
-        --name monitor \
-        -p "80:12000" \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        -e ETCD_BACKEND_NODES="127.0.0.1:2379" \
-        -e LOG_LEVEL="debug" \
-        opera443399/monitor
+  ```
 
-    docker logs --tail 100 --since 5m -f monitor
+  * run on Mac
 
-    ```
+  ```bash
+  test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
+  docker rm -f monitor
 
-### init app
+  docker run -d --restart always \
+      --name monitor \
+      -p "80:12000" \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -e ETCD_BACKEND_NODES="127.0.0.1:2379" \
+      -e LOG_LEVEL="debug" \
+      opera443399/monitor
+
+  docker logs --tail 100 --since 5m -f monitor
+
+  ```
+
+### App init
 
 * init rn
 
@@ -92,9 +93,7 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/local/accessToken/yyy false
 
 copy `App.js` and `css.js` to your project, then run the demo on your simulator or device
 
-## snapshots
-
----
+## Snapshots
 
 ![HomeScreen](./rn/snapshots/HomeScreen.png)
 ![ProjectListScreen](./rn/snapshots/ProjectListScreen.png)
