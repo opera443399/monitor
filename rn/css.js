@@ -44,12 +44,6 @@ export default StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomLeftRadius: 20,
     },
-    //box2-env
-    env: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
     //box2-R1-C1
     box2R1C1: {
         flex: 1,

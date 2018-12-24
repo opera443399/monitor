@@ -17,18 +17,15 @@ import styles from './css'
 YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
 
 // ------ global var ------
-const uriPrefix = {
-  local: 'http://127.0.0.1',
-  dev: 'http://127.0.0.1',
-  test: 'http://127.0.0.1',
-  prod: 'http://127.0.0.1',
-};
-
-const accessToken = {
-  local: 'xxx',
-  dev: 'xxx',
-  test: 'xxx',
-  prod: 'xxx',
+var userInfo = {
+  uri: 'http://127.0.0.1/userinfo',
+  accessID: 'admin',
+  accessSecret: 'xxx',
+  active: {
+    env: '',
+    uriPrefix: '',
+    accessToken: '',
+  },
 };
 
 const iconDefault = {
@@ -42,8 +39,6 @@ const errMap = {
   eFetchData: 'Error occurred on fetch data!',
 };
 
-let runEnv = 'dev';
-
 // ------ HomeScreen ------
 class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -52,67 +47,6 @@ class HomeScreen extends React.Component {
 
   constructor(props) {
     super(props);
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.msg}>
-          <Text style={styles.subtitle}>Select Environment</Text>
-        </View>
-        <View style={styles.content}>
-          <View style={styles.env}>
-            <View style={styles.env}>
-              <Button title="local" onPress={() => {
-                this.props.navigation.navigate('ProjectList', {
-                  activeEnv: 'local'
-                });
-              }}
-              />
-            </View>
-            <View style={styles.env}>
-              <Button title="dev" onPress={() => {
-                this.props.navigation.navigate('ProjectList', {
-                  activeEnv: 'dev'
-                });
-              }}
-              />
-            </View>
-            <View style={styles.env}>
-              <Button title="test" onPress={() => {
-                this.props.navigation.navigate('ProjectList', {
-                  activeEnv: 'test'
-                });
-              }}
-              />
-            </View>
-            <View style={styles.env}>
-              <Button title="prod" onPress={() => {
-                this.props.navigation.navigate('ProjectList', {
-                  activeEnv: 'prod'
-                });
-              }}
-              />
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
-}
-
-// ------ ProjectListScreen ------
-class ProjectListScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Project List',
-  };
-
-  constructor(props) {
-    super(props);
-    const { navigation } = this.props;
-    runEnv = navigation.getParam('activeEnv');
-    console.log('runEnv = ' + runEnv)
     this.state = {
       isLoading: true,
       errMsg: '',
@@ -125,13 +59,12 @@ class ProjectListScreen extends React.Component {
 
   async fetchData() {
     try {
-      let url = uriPrefix[runEnv] + '/project';
-      console.log('url = ' + url)
+      let url = userInfo.uri;
       let response = await fetch(url, {
         method: 'post',
         body: JSON.stringify({
-          'accessToken': accessToken[runEnv],
-          'runEnv': runEnv,
+          'accessID': userInfo.accessID,
+          'accessSecret': userInfo.accessSecret,
         })
       });
       let responseJson = await response.json();
@@ -144,7 +77,7 @@ class ProjectListScreen extends React.Component {
     } catch (error) {
       console.log(error.message);
       this.setState({
-        errMsg: errMap.eFetchData
+        errMsg: errMap.eFetchData,
       });
       console.error(errMap.eFetchData);
     }
@@ -167,7 +100,97 @@ class ProjectListScreen extends React.Component {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <View style={styles.msg}>
-          <Text style={styles.subtitle}>{runEnv}</Text>
+          <Text style={styles.subtitle}>Select Environment</Text>
+        </View>
+        <View style={styles.content}>
+          <FlatList
+            data={this.state.dataSource}
+            renderItem={({ item }) => (
+              <TouchableHighlight onPress={() => {
+                userInfo.active = item;
+                this.props.navigation.navigate('ProjectList');
+              }}>
+                <View style={styles.row}>
+                  <View style={styles.box2R1C1}>
+                    <Text style={styles.box2R1C1A}>{iconDefault.project}</Text>
+                  </View>
+                  <View style={styles.box2R1C2}>
+                    <Text style={styles.box2R1C2A}>{item.env}</Text>
+                  </View>
+                </View>
+              </TouchableHighlight>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
+      </View>
+    );
+  }
+}
+
+// ------ ProjectListScreen ------
+class ProjectListScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Project List',
+  };
+
+  constructor(props) {
+    super(props);
+    const { navigation } = this.props;
+    this.state = {
+      isLoading: true,
+      errMsg: '',
+    }
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  async fetchData() {
+    try {
+      let url = userInfo.active.uriPrefix + '/project';
+      let response = await fetch(url, {
+        method: 'post',
+        body: JSON.stringify({
+          'accessToken': userInfo.active.accessToken,
+          'runEnv': userInfo.active.env,
+        })
+      });
+      let responseJson = await response.json();
+      //console.log('responseJson = ' + JSON.stringify(responseJson));
+      this.setState({
+        isLoading: false,
+        errMsg: '',
+        dataSource: responseJson.data,
+      });
+    } catch (error) {
+      console.log(error.message);
+      this.setState({
+        errMsg: errMap.eFetchData,
+      });
+      console.error(errMap.eFetchData);
+    }
+  }
+
+  render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.msg}>
+          <StatusBar barStyle="light-content" />
+          <View style={styles.isLoading}>
+            <ActivityIndicator />
+          </View>
+          <Text style={styles.error}>{this.state.errMsg}</Text>
+        </View>
+      )
+    }
+
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.msg}>
+          <Text style={styles.subtitle}>{userInfo.active.env}</Text>
         </View>
         <View style={styles.content}>
           <FlatList
@@ -226,12 +249,12 @@ class ProjectDetailsScreen extends React.Component {
 
   async fetchData() {
     try {
-      let url = uriPrefix[runEnv] + '/service';
+      let url = userInfo.active.uriPrefix + '/service';
       let response = await fetch(url, {
         method: 'post',
         body: JSON.stringify({
-          'accessToken': accessToken[runEnv],
-          'runEnv': runEnv,
+          'accessToken': userInfo.active.accessToken,
+          'runEnv': userInfo.active.env,
           'projectName': this.state.projectName,
         })
       });
@@ -267,7 +290,7 @@ class ProjectDetailsScreen extends React.Component {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <View style={styles.msg}>
-          <Text style={styles.subtitle}>{this.state.projectName}-{runEnv}</Text>
+          <Text style={styles.subtitle}>{this.state.projectName}-{userInfo.active.env}</Text>
         </View>
         <View style={styles.content}>
           <FlatList
