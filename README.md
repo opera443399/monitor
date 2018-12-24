@@ -1,6 +1,6 @@
 # monitor
 
-2018/12/21
+2018/12/24
 
 ## POC
 
@@ -98,3 +98,4 @@ copy `App.js` and `css.js` to your project, then run the demo on your simulator 
 ![HomeScreen](./rn/snapshots/HomeScreen.png)
 ![ProjectListScreen](./rn/snapshots/ProjectListScreen.png)
 ![ProjectDetailsScreen](./rn/snapshots/ProjectDetailsScreen.png)
+![ProfileScreen](./rn/snapshots/ProfileScreen.png)

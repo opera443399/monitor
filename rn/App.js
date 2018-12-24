@@ -9,7 +9,7 @@ import {
   View,
   YellowBox
 } from 'react-native';
-import { createStackNavigator, createAppContainer } from "react-navigation";
+import { createAppContainer, createStackNavigator, createBottomTabNavigator } from "react-navigation";
 
 import styles from './css'
 
@@ -295,7 +295,45 @@ class ProjectDetailsScreen extends React.Component {
   }
 }
 
-const AppNavigator = createStackNavigator(
+class SettingsScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Settings',
+  };
+
+  render() {
+    return (
+      <View style={styles.msg}>
+        <StatusBar barStyle="light-content" />
+        <Text>Settings View</Text>
+        <Button
+          title="Go to Profile"
+          onPress={() => this.props.navigation.navigate('Profile')}
+        />
+      </View>
+    )
+  }
+}
+
+class ProfileScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Profile',
+  };
+
+  render() {
+    return (
+      <View style={styles.msg}>
+        <StatusBar barStyle="light-content" />
+        <Text>Profile View</Text>
+        <Button
+          title="Go to Settings"
+          onPress={() => this.props.navigation.navigate('Settings')}
+        />
+      </View>
+    )
+  }
+}
+
+const HomeStack = createStackNavigator(
   {
     Home: {
       screen: HomeScreen,
@@ -319,6 +357,37 @@ const AppNavigator = createStackNavigator(
         fontWeight: 'bold',
       },
     },
+  }
+);
+
+const ProfileStack = createStackNavigator(
+  {
+    Profile: {
+      screen: ProfileScreen,
+    },
+    Settings: {
+      screen: SettingsScreen,
+    },
+  },
+  {
+    initialRouteName: 'Profile',
+
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: '#000',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+      },
+    },
+  }
+);
+
+const AppNavigator = createBottomTabNavigator(
+  {
+    Home: HomeStack,
+    Profile: ProfileStack,
   }
 );
 
