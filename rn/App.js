@@ -56,13 +56,13 @@ class HomeScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.content}>
+      <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <View style={styles.msg}>
           <Text style={styles.subtitle}>Select Environment</Text>
         </View>
         <View style={styles.content}>
-          <View style={styles.row}>
+          <View style={styles.env}>
             <View style={styles.env}>
               <Button title="local" onPress={() => {
                 this.props.navigation.navigate('ProjectList', {
