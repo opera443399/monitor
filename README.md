@@ -61,8 +61,24 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/env '
   * run local
 
   ```bash
-  make
-  ./bin/monitor -port 80 -node "127.0.0.1:2379" -log-level debug
+  # make
+  # ./bin/monitor -port 80 -node "127.0.0.1:2379" -log-level debug
+
+  2018-12-25T15:09:21+08:00 dev.local ./bin/monitor[45348]: INFO KVStore backend set to: etcdv3
+  2018-12-25T15:09:21+08:00 dev.local ./bin/monitor[45348]: INFO Listening on port *:80
+  2018-12-25T15:10:41+08:00 dev.local ./bin/monitor[45348]: DEBUG [kvstore] key set to: /monitor/local/accessToken/xxx
+  2018-12-25T15:10:41+08:00 dev.local ./bin/monitor[45348]: DEBUG [kvstore] [127.0.0.1:2379]: get [/monitor/local/accessToken/xxx]
+  2018-12-25T15:10:41+08:00 dev.local ./bin/monitor[45348]: DEBUG [kvstore] result: map[/monitor/local/accessToken/xxx:true]
+  2018-12-25T15:10:41+08:00 dev.local ./bin/monitor[45348]: DEBUG [kvstore] [127.0.0.1:2379]: get [/monitor/local/projects]
+  2018-12-25T15:10:41+08:00 dev.local ./bin/monitor[45348]: DEBUG [query-projects] response: {"env":"local","data":[{"icon":"👼","name":"demo1",
+  "status":"1"},{"icon":"😇","name":"demoproject","status":"1"}]}
+  2018-12-25T15:10:42+08:00 dev.local ./bin/monitor[45348]: DEBUG [kvstore] key set to: /monitor/local/accessToken/xxx
+  2018-12-25T15:10:42+08:00 dev.local ./bin/monitor[45348]: DEBUG [kvstore] [127.0.0.1:2379]: get [/monitor/local/accessToken/xxx]
+  2018-12-25T15:10:42+08:00 dev.local ./bin/monitor[45348]: DEBUG [kvstore] result: map[/monitor/local/accessToken/xxx:true]
+  2018-12-25T15:10:42+08:00 dev.local ./bin/monitor[45348]: DEBUG [query-services] response:{"env":"local","projectName":"demoproject","data":[
+  {"id":"kacjc7h2bp","name":"local-demoproject-svc1","replicas":"1/1","image":"demo:v1"},{"id":"saz35fg0b8","name":"local-demoproject-svc2","replicas":"2/2","ima
+  ge":"demo:v1"}]}
+
 
   ```
 
