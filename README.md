@@ -34,22 +34,22 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/env '
   "data":[
     {
       "env":"local",
-      "uriPrefix":"http://127.0.0.1",
+      "urlPrefix":"http://127.0.0.1",
       "accessToken":"xxx"
     },
     {
       "env":"dev",
-      "uriPrefix":"http://127.0.0.1",
+      "urlPrefix":"http://127.0.0.1",
       "accessToken":"xxx"
     },
     {
       "env":"test",
-      "uriPrefix":"http://127.0.0.1",
+      "urlPrefix":"http://127.0.0.1",
       "accessToken":"xxx"
     },
     {
       "env":"prod",
-      "uriPrefix":"http://127.0.0.1",
+      "urlPrefix":"http://127.0.0.1",
       "accessToken":"xxx"
     }
   ]

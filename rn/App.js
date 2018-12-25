@@ -18,12 +18,12 @@ YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTIm
 
 // ------ global var ------
 var userInfo = {
-  uri: 'http://127.0.0.1/userinfo',
+  url: 'http://127.0.0.1/userinfo',
   accessID: 'admin',
   accessSecret: 'xxx',
   active: {
     env: '',
-    uriPrefix: '',
+    urlPrefix: '',
     accessToken: '',
   },
 };
@@ -61,7 +61,7 @@ class ProjectEnvScreen extends React.Component {
 
   async fetchData() {
     try {
-      let url = userInfo.uri;
+      let url = userInfo.url;
       let response = await fetch(url, {
         method: 'post',
         body: JSON.stringify({
@@ -151,7 +151,7 @@ class ProjectListScreen extends React.Component {
 
   async fetchData() {
     try {
-      let url = userInfo.active.uriPrefix + '/project';
+      let url = userInfo.active.urlPrefix + '/project';
       let response = await fetch(url, {
         method: 'post',
         body: JSON.stringify({
@@ -251,7 +251,7 @@ class ProjectDetailsScreen extends React.Component {
 
   async fetchData() {
     try {
-      let url = userInfo.active.uriPrefix + '/service';
+      let url = userInfo.active.urlPrefix + '/service';
       let response = await fetch(url, {
         method: 'post',
         body: JSON.stringify({
