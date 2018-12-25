@@ -31,18 +31,20 @@ var userInfo = {
 const iconDefault = {
   blue: '\uD83D\uDD35',
   red: '\uD83D\uDD34',
-  project: '\u00AE\uFE0F',
+  project: '\uD83D\uDCCC',
   log: '\uD83D\uDCC4',
+  home: '\uD83C\uDFE1',
+  profile: '\uD83C\uDFA8',
 };
 
 const errMap = {
   eFetchData: 'Error occurred on fetch data!',
 };
 
-// ------ HomeScreen ------
-class HomeScreen extends React.Component {
+// ------ ProjectEnvScreen ------
+class ProjectEnvScreen extends React.Component {
   static navigationOptions = {
-    title: 'Home',
+    title: 'Environment',
   };
 
   constructor(props) {
@@ -100,7 +102,7 @@ class HomeScreen extends React.Component {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <View style={styles.msg}>
-          <Text style={styles.subtitle}>Select Environment</Text>
+          <Text style={styles.subtitle}>{userInfo.accessID}'s env</Text>
         </View>
         <View style={styles.content}>
           <FlatList
@@ -301,12 +303,16 @@ class ProjectDetailsScreen extends React.Component {
                   <Text style={styles.box2R1C1A}>{this.state.projectIcon}</Text>
                 </View>
                 <View style={styles.box2R1C2}>
-                  <Text style={styles.box2R1C2A}>{item.name} </Text>
-                  <Text style={styles.box2R1C2B}>{item.image}</Text>
+                  <Text style={styles.box2R1C1A}>{item.name} </Text>
+                  <Text style={styles.box2R1C1B}>{item.image}</Text>
                 </View>
                 <View style={styles.box2R1C3}>
-                  <Text style={styles.box2R1C3A}>{item.replicas}</Text>
-                  <Text style={styles.box2R1C3B}>{iconDefault.log}</Text>
+                  <Text style={styles.box2R1C1A}>{item.replicas}</Text>
+                  <Button
+                    onPress={() => this.props.navigation.navigate('LogsModal')}
+                    title={iconDefault.log}
+                    style={styles.box2R1C1B}
+                  />
                 </View>
               </View>
             )}
@@ -317,6 +323,21 @@ class ProjectDetailsScreen extends React.Component {
     );
   }
 }
+
+class LogsModalScreen extends React.Component {
+  render() {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 30 }}>This is a log modal demo!</Text>
+        <Button
+          onPress={() => this.props.navigation.goBack()}
+          title="Dismiss"
+        />
+      </View>
+    );
+  }
+}
+
 
 class SettingsScreen extends React.Component {
   static navigationOptions = {
@@ -356,10 +377,10 @@ class ProfileScreen extends React.Component {
   }
 }
 
-const HomeStack = createStackNavigator(
+const ProjectStack = createStackNavigator(
   {
-    Home: {
-      screen: HomeScreen,
+    ProjectEnv: {
+      screen: ProjectEnvScreen,
     },
     ProjectList: {
       screen: ProjectListScreen,
@@ -369,7 +390,7 @@ const HomeStack = createStackNavigator(
     },
   },
   {
-    initialRouteName: 'Home',
+    initialRouteName: 'ProjectEnv',
 
     defaultNavigationOptions: {
       headerStyle: {
@@ -380,6 +401,28 @@ const HomeStack = createStackNavigator(
         fontWeight: 'bold',
       },
     },
+  }
+);
+
+const HomeStack = createStackNavigator(
+  {
+    Project: {
+      screen: ProjectStack,
+    },
+    LogsModal: {
+      screen: LogsModalScreen,
+    },
+  },
+  {
+    initialRouteName: 'Project',
+    navigationOptions: {
+      tabBarLabel: 'Home',
+      tabBarIcon: ({ tintColor, focused }) => (
+        <Text>{iconDefault.home}</Text>
+      ),
+    },
+    mode: 'modal',
+    headerMode: 'none',
   }
 );
 
@@ -394,7 +437,12 @@ const ProfileStack = createStackNavigator(
   },
   {
     initialRouteName: 'Profile',
-
+    navigationOptions: {
+      tabBarLabel: 'Profile',
+      tabBarIcon: ({ tintColor, focused }) => (
+        <Text>{iconDefault.profile}</Text>
+      ),
+    },
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: '#000',
@@ -409,8 +457,15 @@ const ProfileStack = createStackNavigator(
 
 const AppNavigator = createBottomTabNavigator(
   {
-    Home: HomeStack,
-    Profile: ProfileStack,
+    Home: {
+      screen: HomeStack,
+    },
+    Profile: {
+      screen: ProfileStack,
+    },
+  },
+  {
+    initialRouteName: 'Home',
   }
 );
 

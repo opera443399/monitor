@@ -32,7 +32,6 @@ export default StyleSheet.create({
         borderStyle: 'solid',
         borderColor: 'gray',
         borderTopWidth: 1,
-        borderBottomWidth: 1,
     },
     //box2-row1
     row: {
@@ -42,7 +41,7 @@ export default StyleSheet.create({
         borderStyle: 'solid',
         borderBottomColor: 'gray',
         borderBottomWidth: 1,
-        borderBottomLeftRadius: 20,
+        borderBottomLeftRadius: 15,
     },
     //box2-R1-C1
     box2R1C1: {
@@ -56,39 +55,23 @@ export default StyleSheet.create({
         flex: 9,
         flexDirection: 'column',
         alignItems: 'flex-start',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
     },
     //box2-R1-C3
     box2R1C3: {
-        flex: 1,
+        flex: 2,
         flexDirection: 'column',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     //box2-R1-C1-A
     box2R1C1A: {
         flex: 1,
+        paddingBottom: 3,
     },
-    //box2-R1-C2-A
-    box2R1C2A: {
+    //box2-R1-C1-B
+    box2R1C1B: {
         flex: 1,
-        paddingBottom: 10,
-    },
-    //box2-R1-C2-B
-    box2R1C2B: {
-        flex: 1,
-    },
-    //box2-R1-C3-A
-    box2R1C3A: {
-        flex: 1,
-        paddingBottom: 10,
-    },
-    //box2-R1-C3-B
-    box2R1C3B: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start',
     },
 
 })
