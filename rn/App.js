@@ -35,6 +35,7 @@ const iconDefault = {
   log: '\uD83D\uDCC4',
   home: '\uD83C\uDFE1',
   profile: '\uD83C\uDFA8',
+  refresh: '\u21BB',
 };
 
 const errMap = {
@@ -43,8 +44,20 @@ const errMap = {
 
 // ------ ProjectEnvScreen ------
 class ProjectEnvScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Environment',
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: iconDefault.project + 'Environment',
+      headerRight: (
+        <Button
+          onPress={() => {
+            const refreshFunc = navigation.getParam('refresh');
+            refreshFunc && refreshFunc();
+          }}
+          title={iconDefault.refresh}
+          color="#FFF"
+        />
+      ),
+    };
   };
 
   constructor(props) {
@@ -56,6 +69,7 @@ class ProjectEnvScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.props.navigation.setParams({ refresh: this.fetchData.bind(this) });
     this.fetchData();
   }
 
