@@ -56,14 +56,14 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if ok := checkToken(keyToken); !ok {
 		return
 	}
-
-	key := config.KVPrefix + "/user/" + data.AccessID
+	// key -> etcd-server/monitor/userinfo/admin/env
+	key := config.KVPrefix + "/userinfo/" + data.AccessID + "/env"
 	kvData, err := kvGetValue(key)
 	if err != nil {
 		log.Error("[kvstore] failed to fetch data!")
 		return
 	}
-	log.Debug("[query-projects] response: %s", kvData[key])
+	log.Debug("[query-userinfo] response: %s", kvData[key])
 	fmt.Fprintf(w, "%s\n", kvData[key])
 }
 
@@ -77,12 +77,12 @@ func projectHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error("[json] failed to Unmarshal the payload!")
 		return
 	}
-
+	// key -> etcd-server/monitor/local/accessToken/xxx
 	keyToken := config.KVPrefix + "/" + data.RunEnv + "/accessToken/" + data.AccessToken
 	if ok := checkToken(keyToken); !ok {
 		return
 	}
-
+	// key -> etcd-server/monitor/local/projects
 	key := config.KVPrefix + "/" + data.RunEnv + "/projects"
 	kvData, err := kvGetValue(key)
 	if err != nil {
@@ -104,7 +104,7 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 		log.Error("[json] failed to Unmarshal the payload!")
 		return
 	}
-
+	// key -> etcd-server/monitor/local/accessToken/xxx
 	keyToken := config.KVPrefix + "/" + data.RunEnv + "/accessToken/" + data.AccessToken
 	if ok := checkToken(keyToken); !ok {
 		return
