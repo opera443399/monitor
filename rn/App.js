@@ -1,9 +1,11 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  AsyncStorage,
   FlatList,
   StatusBar,
   Text,
+  TextInput,
   TouchableHighlight,
   Button,
   View,
@@ -18,9 +20,14 @@ YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTIm
 
 // ------ global var ------
 var userInfo = {
-  url: 'http://127.0.0.1/userinfo',
-  accessID: 'admin',
-  accessSecret: 'xxx',
+  default: {
+    url: 'http://127.0.0.1/userinfo',
+    accessID: 'admin',
+    accessSecret: 'xxx',
+  },
+  url: '',
+  accessID: '',
+  accessSecret: '',
   active: {
     env: '',
     urlPrefix: '',
@@ -84,7 +91,7 @@ class ProjectEnvScreen extends React.Component {
         })
       });
       let responseJson = await response.json();
-      console.log('responseJson = ' + JSON.stringify(responseJson));
+      //console.log('responseJson = ' + JSON.stringify(responseJson));
       this.setState({
         isLoading: false,
         errMsg: '',
@@ -126,7 +133,7 @@ class ProjectEnvScreen extends React.Component {
                 userInfo.active = item;
                 this.props.navigation.navigate('ProjectList');
               }}>
-                <View style={styles.row}>
+                <View style={styles.row1}>
                   <View style={styles.box2R1C1}>
                     <Text style={styles.box2R1C1A}>{iconDefault.project}</Text>
                   </View>
@@ -218,7 +225,7 @@ class ProjectListScreen extends React.Component {
                   projectName: item.name,
                 });
               }}>
-                <View style={styles.row}>
+                <View style={styles.row1}>
                   <View style={styles.box2R1C1}>
                     <Text style={styles.box2R1C1A}>{item.icon == '' ? iconDefault.project : item.icon}</Text>
                   </View>
@@ -312,12 +319,12 @@ class ProjectDetailsScreen extends React.Component {
           <FlatList
             data={this.state.dataSource}
             renderItem={({ item }) => (
-              <View style={styles.row}>
+              <View style={styles.row1}>
                 <View style={styles.box2R1C1}>
                   <Text style={styles.box2R1C1A}>{this.state.projectIcon}</Text>
                 </View>
                 <View style={styles.box2R1C2}>
-                  <Text style={styles.box2R1C1A}>{item.name} </Text>
+                  <Text style={styles.box2R1C1A}>{item.name}</Text>
                   <Text style={styles.box2R1C1B}>{item.image}</Text>
                 </View>
                 <View style={styles.box2R1C3}>
@@ -338,6 +345,7 @@ class ProjectDetailsScreen extends React.Component {
   }
 }
 
+// ------ LogsModalScreen ------
 class LogsModalScreen extends React.Component {
   render() {
     return (
@@ -352,30 +360,28 @@ class LogsModalScreen extends React.Component {
   }
 }
 
-
-class SettingsScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Settings',
-  };
-
-  render() {
-    return (
-      <View style={styles.msg}>
-        <StatusBar barStyle="light-content" />
-        <Text>Settings View</Text>
-        <Button
-          title="Go to Profile"
-          onPress={() => this.props.navigation.navigate('Profile')}
-        />
-      </View>
-    )
-  }
-}
-
+// ------ ProfileScreen ------
 class ProfileScreen extends React.Component {
   static navigationOptions = {
     title: 'Profile',
   };
+
+  componentDidMount() {
+    this._onGetData();
+  }
+
+  _onGetData() {
+    let keyUserInfo = ['activeURL', 'activeAccessID', 'activeAccessSecret']
+
+    AsyncStorage.multiGet(keyUserInfo, (errs, result) => {
+      if (!errs) {
+        userInfo.url = (result[0][1] !== null) ? result[0][1] : '';
+        userInfo.accessID = (result[1][1] !== null) ? result[1][1] : '';
+        userInfo.accessSecret = (result[2][1] !== null) ? result[2][1] : '';
+        //console.log("_onGetData");
+      }
+    });
+  }
 
   render() {
     return (
@@ -386,6 +392,117 @@ class ProfileScreen extends React.Component {
           title="Go to Settings"
           onPress={() => this.props.navigation.navigate('Settings')}
         />
+      </View>
+    )
+  }
+}
+
+// ------ SettingsScreen ------
+class SettingsScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Settings',
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeURL: userInfo.url,
+      activeAccessID: userInfo.accessID,
+      activeAccessSecret: userInfo.accessSecret,
+    }
+  }
+
+  _onSetData() {
+    let kvUserInfo = [
+      ['activeURL', this.state.activeURL],
+      ['activeAccessID', this.state.activeAccessID],
+      ['activeAccessSecret', this.state.activeAccessSecret],
+    ]
+
+    AsyncStorage.multiSet(kvUserInfo, (errs) => {
+      if (!errs) {
+        userInfo.url = this.state.activeURL;
+        userInfo.accessID = this.state.activeAccessID;
+        userInfo.accessSecret = this.state.activeAccessSecret;
+        alert("Saved!");
+        //console.log("_onSetData");
+      }
+    });
+  }
+
+  _onResetData() {
+    userInfo.url = userInfo.default.url;
+    userInfo.accessID = userInfo.default.accessID;
+    userInfo.accessSecret = userInfo.default.accessSecret;
+
+    let kvUserInfo = [
+      ['activeURL', userInfo.default.url],
+      ['activeAccessID', userInfo.default.accessID],
+      ['activeAccessSecret', userInfo.default.accessSecret],
+    ]
+
+    AsyncStorage.multiSet(kvUserInfo, (errs) => {
+      if (!errs) {
+        alert("Done!");
+        //console.log("_onResetData");
+      }
+    });
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.content}>
+          <View style={styles.row2}>
+            <View style={styles.box2R2C1}>
+              <Text>URL: </Text>
+            </View>
+            <View style={styles.box2R2C2}>
+              <TextInput
+                ref="url"
+                style={styles.row2TextInput}
+                onEndEditing={(event) => this.setState({ activeURL: event.nativeEvent.text })}
+                onSubmitEditing={(event) => this.refs.accessID.focus()}
+                autoFocus={true}
+              >{userInfo.url}</TextInput>
+            </View>
+          </View>
+          <View style={styles.row2}>
+            <View style={styles.box2R2C1}>
+              <Text>AccessID: </Text>
+            </View>
+            <View style={styles.box2R2C2}>
+              <TextInput
+                ref="accessID"
+                style={styles.row2TextInput}
+                onEndEditing={(event) => this.setState({ activeAccessID: event.nativeEvent.text })}
+                onSubmitEditing={(event) => this.refs.accessSecret.focus()}
+              >{userInfo.accessID}</TextInput>
+            </View>
+          </View>
+          <View style={styles.row2}>
+            <View style={styles.box2R2C1}>
+              <Text>AccessSecret: </Text>
+            </View>
+            <View style={styles.box2R2C2}>
+              <TextInput
+                ref="accessSecret"
+                secureTextEntry={true}
+                style={styles.row2TextInput}
+                onEndEditing={(event) => this.setState({ activeAccessSecret: event.nativeEvent.text })}
+              >{userInfo.accessSecret}</TextInput>
+            </View>
+          </View>
+          <Button
+            title="Apply"
+            onPress={() => this._onSetData()}
+          />
+          <Button
+            title="Reset"
+            onPress={() => this._onResetData()}
+          />
+        </View>
       </View>
     )
   }
@@ -479,7 +596,7 @@ const AppNavigator = createBottomTabNavigator(
     },
   },
   {
-    initialRouteName: 'Home',
+    initialRouteName: 'Profile',
   }
 );
 

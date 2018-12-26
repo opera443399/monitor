@@ -34,7 +34,7 @@ export default StyleSheet.create({
         borderTopWidth: 1,
     },
     //box2-row1
-    row: {
+    row1: {
         flex: 1,
         flexDirection: 'row',
         padding: 10,
@@ -73,5 +73,31 @@ export default StyleSheet.create({
     box2R1C1B: {
         flex: 1,
     },
-
+    //box2-row2
+    row2: {
+        flexDirection: 'row',
+        padding: 10,
+        borderStyle: 'solid',
+        borderBottomColor: 'gray',
+        borderBottomWidth: 1,
+        borderBottomLeftRadius: 15,
+    },
+    //box2-R2-C1
+    box2R2C1: {
+        flex: 4,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+    },
+    //box2-R2-C1
+    box2R2C2: {
+        flex: 8,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+    },
+    //box2-row2-textinput
+    row2TextInput: {
+        color: 'gray',
+    },
 })
