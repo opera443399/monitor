@@ -9,6 +9,7 @@ import {
   TouchableHighlight,
   Button,
   View,
+  ScrollView,
   YellowBox
 } from 'react-native';
 import { createAppContainer, createStackNavigator, createBottomTabNavigator } from "react-navigation";
@@ -411,12 +412,22 @@ class LogsModalScreen extends React.Component {
     }
 
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>{this.state.dataSource}</Text>
-        <Button
-          onPress={() => this.props.navigation.goBack()}
-          title="Dismiss"
-        />
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.msg}>
+          <Text style={styles.subtitle}>Last {this.state.tail} lines of service logs</Text>
+        </View>
+        <View style={styles.content}>
+          <ScrollView>
+            <View style={styles.box2R1C1}>
+              <Text>{this.state.dataSource}</Text>
+              <Button
+                onPress={() => this.props.navigation.goBack()}
+                title="Dismiss"
+              />
+            </View>
+          </ScrollView>
+        </View>
       </View>
     );
   }
