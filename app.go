@@ -153,10 +153,49 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(svcs)
 }
 
+// curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx","runEnv":"local","serviceID":"saz35fg0b8","tail":"20"}' 127.0.0.1/service/logs
+func serviceLogsHandler(w http.ResponseWriter, r *http.Request) {
+	data := ParseService{}
+
+	payload, _ := ioutil.ReadAll(r.Body)
+	r.Body.Close()
+	if err := json.Unmarshal(payload, &data); err != nil {
+		log.Error("[json] failed to Unmarshal the payload!")
+		return
+	}
+	// key -> etcd-server/monitor/local/accessToken/xxx
+	keyToken := config.KVPrefix + "/" + data.RunEnv + "/accessToken/" + data.AccessToken
+	if ok := checkToken(keyToken); !ok {
+		return
+	}
+
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		panic(err)
+	}
+
+	//------ list service with filter
+	fSvcLogs := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: true,
+		Tail:       data.Tail,
+	}
+	response, err := cli.ServiceLogs(context.Background(), data.ServiceID, fSvcLogs)
+	if err != nil {
+		panic(err)
+	}
+	body, err := ioutil.ReadAll(response)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintf(w, "%s\n", body)
+}
+
 func main() {
 	flag.Parse()
 	if config.PrintVersion {
-		fmt.Printf("oMonitor %s (Git SHA: %s, Go Version: %s)\n", Version, GitSHA, runtime.Version())
+		fmt.Printf("monitor %s (Git SHA: %s, Go Version: %s)\n", Version, GitSHA, runtime.Version())
 		os.Exit(0)
 	}
 	if err := initConfig(); err != nil {
@@ -167,6 +206,7 @@ func main() {
 	http.HandleFunc("/userinfo", userInfoHandler)
 	http.HandleFunc("/project", projectHandler)
 	http.HandleFunc("/service", serviceHandler)
+	http.HandleFunc("/service/logs", serviceLogsHandler)
 
 	log.Info("Listening on port *:" + config.Port)
 	if err := http.ListenAndServe(":"+config.Port, nil); err != nil {

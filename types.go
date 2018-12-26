@@ -19,6 +19,14 @@ type ParseProject struct {
 	ProjectName string `json:"projectName"`
 }
 
+//ParseService save payload from http.Request
+type ParseService struct {
+	AccessToken string `json:"accessToken"`
+	RunEnv      string `json:"runEnv"`
+	ServiceID   string `json:"serviceID"`
+	Tail        string `json:"tail"`
+}
+
 //Project desc a project
 type Project struct {
 	Icon   string `json:"icon"`
