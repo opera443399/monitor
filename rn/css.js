@@ -89,7 +89,7 @@ export default StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
     },
-    //box2-R2-C1
+    //box2-R2-C2
     box2R2C2: {
         flex: 8,
         flexDirection: 'column',
@@ -99,5 +99,16 @@ export default StyleSheet.create({
     //box2-row2-textinput
     row2TextInput: {
         color: 'gray',
+    },
+    //box2-row3
+    row3: {
+        flexDirection: 'row',
+    },
+    //box2-row3-btn
+    row3Btn: {
+        flex: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 })

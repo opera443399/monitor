@@ -21,13 +21,15 @@ YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTIm
 // ------ global var ------
 var userInfo = {
   default: {
-    url: 'http://127.0.0.1/userinfo',
+    endpoint: 'http://127.0.0.1/userinfo',
     accessID: 'admin',
     accessSecret: 'xxx',
+    tail: '20',
   },
-  url: '',
+  endpoint: '',
   accessID: '',
   accessSecret: '',
+  tail: '',
   active: {
     env: '',
     urlPrefix: '',
@@ -82,7 +84,7 @@ class ProjectEnvScreen extends React.Component {
 
   async fetchData() {
     try {
-      let url = userInfo.url;
+      let url = userInfo.endpoint;
       let response = await fetch(url, {
         method: 'post',
         body: JSON.stringify({
@@ -91,7 +93,6 @@ class ProjectEnvScreen extends React.Component {
         })
       });
       let responseJson = await response.json();
-      //console.log('responseJson = ' + JSON.stringify(responseJson));
       this.setState({
         isLoading: false,
         errMsg: '',
@@ -181,7 +182,6 @@ class ProjectListScreen extends React.Component {
         })
       });
       let responseJson = await response.json();
-      //console.log('responseJson = ' + JSON.stringify(responseJson));
       this.setState({
         isLoading: false,
         errMsg: '',
@@ -282,7 +282,6 @@ class ProjectDetailsScreen extends React.Component {
         })
       });
       let responseJson = await response.json();
-      //console.log('responseJson = ' + JSON.stringify(responseJson));
       this.setState({
         isLoading: false,
         errMsg: '',
@@ -330,7 +329,9 @@ class ProjectDetailsScreen extends React.Component {
                 <View style={styles.box2R1C3}>
                   <Text style={styles.box2R1C1A}>{item.replicas}</Text>
                   <Button
-                    onPress={() => this.props.navigation.navigate('LogsModal')}
+                    onPress={() => this.props.navigation.navigate('LogsModal', {
+                      serviceID: item.id,
+                    })}
                     title={iconDefault.log}
                     style={styles.box2R1C1B}
                   />
@@ -347,10 +348,71 @@ class ProjectDetailsScreen extends React.Component {
 
 // ------ LogsModalScreen ------
 class LogsModalScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Service Logs',
+  };
+
+  constructor(props) {
+    super(props);
+    const { navigation } = this.props;
+    const serviceID = navigation.getParam('serviceID');
+
+    this.state = {
+      isLoading: true,
+      errMsg: '',
+      serviceID: serviceID,
+      tail: userInfo.tail,
+    }
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  async fetchData() {
+    try {
+      let url = userInfo.active.urlPrefix + '/service/logs';
+      let response = await fetch(url, {
+        method: 'post',
+        body: JSON.stringify({
+          'accessToken': userInfo.active.accessToken,
+          'runEnv': userInfo.active.env,
+          'serviceID': this.state.serviceID,
+          'tail': this.state.tail,
+        })
+      });
+      console.info(response);
+      let responseText = await response.text();
+      this.setState({
+        isLoading: false,
+        errMsg: '',
+        dataSource: responseText,
+      });
+    } catch (error) {
+      console.error(error);
+      this.setState({
+        errMsg: errMap.eFetchData,
+      });
+      console.error(errMap.eFetchData);
+    }
+  }
+
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.msg}>
+          <StatusBar barStyle="light-content" />
+          <View style={styles.isLoading}>
+            <ActivityIndicator />
+          </View>
+          <Text style={styles.error}>{this.state.errMsg}</Text>
+        </View>
+      )
+    }
+
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 30 }}>This is a log modal demo!</Text>
+        <Text>{this.state.dataSource}</Text>
         <Button
           onPress={() => this.props.navigation.goBack()}
           title="Dismiss"
@@ -371,13 +433,14 @@ class ProfileScreen extends React.Component {
   }
 
   _onGetData() {
-    let keyUserInfo = ['activeURL', 'activeAccessID', 'activeAccessSecret']
+    let keyUserInfo = ['activeEndpoint', 'activeAccessID', 'activeAccessSecret', 'activeTail']
 
     AsyncStorage.multiGet(keyUserInfo, (errs, result) => {
       if (!errs) {
-        userInfo.url = (result[0][1] !== null) ? result[0][1] : '';
-        userInfo.accessID = (result[1][1] !== null) ? result[1][1] : '';
-        userInfo.accessSecret = (result[2][1] !== null) ? result[2][1] : '';
+        userInfo.endpoint = (result[0][1] !== null) ? result[0][1] : userInfo.default.endpoint;
+        userInfo.accessID = (result[1][1] !== null) ? result[1][1] : userInfo.default.accessID;
+        userInfo.accessSecret = (result[2][1] !== null) ? result[2][1] : userInfo.default.accessSecret;
+        userInfo.tail = (result[3][1] !== null) ? result[3][1] : userInfo.default.tail;
         //console.log("_onGetData");
       }
     });
@@ -406,24 +469,28 @@ class SettingsScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeURL: userInfo.url,
+      activeEndpoint: userInfo.endpoint,
       activeAccessID: userInfo.accessID,
       activeAccessSecret: userInfo.accessSecret,
+      activeTail: userInfo.tail,
     }
   }
 
   _onSetData() {
+    userInfo.endpoint = this.state.activeEndpoint;
+    userInfo.accessID = this.state.activeAccessID;
+    userInfo.accessSecret = this.state.activeAccessSecret;
+    userInfo.tail = this.state.activeTail;
+
     let kvUserInfo = [
-      ['activeURL', this.state.activeURL],
+      ['activeEndpoint', this.state.activeEndpoint],
       ['activeAccessID', this.state.activeAccessID],
       ['activeAccessSecret', this.state.activeAccessSecret],
+      ['activeTail', userInfo.default.tail],
     ]
 
     AsyncStorage.multiSet(kvUserInfo, (errs) => {
       if (!errs) {
-        userInfo.url = this.state.activeURL;
-        userInfo.accessID = this.state.activeAccessID;
-        userInfo.accessSecret = this.state.activeAccessSecret;
         alert("Saved!");
         //console.log("_onSetData");
       }
@@ -431,17 +498,14 @@ class SettingsScreen extends React.Component {
   }
 
   _onResetData() {
-    userInfo.url = userInfo.default.url;
+    userInfo.endpoint = userInfo.default.endpoint;
     userInfo.accessID = userInfo.default.accessID;
     userInfo.accessSecret = userInfo.default.accessSecret;
+    userInfo.tail = userInfo.default.tail;
 
-    let kvUserInfo = [
-      ['activeURL', userInfo.default.url],
-      ['activeAccessID', userInfo.default.accessID],
-      ['activeAccessSecret', userInfo.default.accessSecret],
-    ]
+    let keyUserInfo = ['activeEndpoint', 'activeAccessID', 'activeAccessSecret', 'activeTail']
 
-    AsyncStorage.multiSet(kvUserInfo, (errs) => {
+    AsyncStorage.multiRemove(keyUserInfo, (errs) => {
       if (!errs) {
         alert("Done!");
         //console.log("_onResetData");
@@ -456,26 +520,28 @@ class SettingsScreen extends React.Component {
         <View style={styles.content}>
           <View style={styles.row2}>
             <View style={styles.box2R2C1}>
-              <Text>URL: </Text>
+              <Text>Endpoint</Text>
             </View>
             <View style={styles.box2R2C2}>
               <TextInput
-                ref="url"
+                ref="endpoint"
                 style={styles.row2TextInput}
-                onEndEditing={(event) => this.setState({ activeURL: event.nativeEvent.text })}
+                onChangeText={(text) => this.setState({ activeEndpoint: text })}
+                onEndEditing={(event) => this.setState({ activeEndpoint: event.nativeEvent.text })}
                 onSubmitEditing={(event) => this.refs.accessID.focus()}
                 autoFocus={true}
-              >{userInfo.url}</TextInput>
+              >{userInfo.endpoint}</TextInput>
             </View>
           </View>
           <View style={styles.row2}>
             <View style={styles.box2R2C1}>
-              <Text>AccessID: </Text>
+              <Text>AccessID</Text>
             </View>
             <View style={styles.box2R2C2}>
               <TextInput
                 ref="accessID"
                 style={styles.row2TextInput}
+                onChangeText={(text) => this.setState({ activeAccessID: text })}
                 onEndEditing={(event) => this.setState({ activeAccessID: event.nativeEvent.text })}
                 onSubmitEditing={(event) => this.refs.accessSecret.focus()}
               >{userInfo.accessID}</TextInput>
@@ -483,25 +549,44 @@ class SettingsScreen extends React.Component {
           </View>
           <View style={styles.row2}>
             <View style={styles.box2R2C1}>
-              <Text>AccessSecret: </Text>
+              <Text>AccessSecret</Text>
             </View>
             <View style={styles.box2R2C2}>
               <TextInput
                 ref="accessSecret"
                 secureTextEntry={true}
                 style={styles.row2TextInput}
+                onChangeText={(text) => this.setState({ activeAccessSecret: text })}
                 onEndEditing={(event) => this.setState({ activeAccessSecret: event.nativeEvent.text })}
+                onSubmitEditing={(event) => this.refs.tail.focus()}
               >{userInfo.accessSecret}</TextInput>
             </View>
           </View>
-          <Button
-            title="Apply"
-            onPress={() => this._onSetData()}
-          />
-          <Button
-            title="Reset"
-            onPress={() => this._onResetData()}
-          />
+          <View style={styles.row2}>
+            <View style={styles.box2R2C1}>
+              <Text>Tail</Text>
+            </View>
+            <View style={styles.box2R2C2}>
+              <TextInput
+                ref="tail"
+                style={styles.row2TextInput}
+                onChangeText={(text) => this.setState({ activeTail: text })}
+                onEndEditing={(event) => this.setState({ activeTail: event.nativeEvent.text })}
+              >{userInfo.tail}</TextInput>
+            </View>
+          </View>
+          <View style={styles.row3}>
+            <View style={styles.row3Btn}>
+              <Button
+                title="Apply"
+                onPress={() => this._onSetData()}
+              />
+              <Button
+                title="Reset"
+                onPress={() => this._onResetData()}
+              />
+            </View>
+          </View>
         </View>
       </View>
     )
