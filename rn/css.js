@@ -21,7 +21,7 @@ export default StyleSheet.create({
         flex: 1,
         color: 'red',
     },
-    //box1-1
+    //box1
     subtitle: {
         color: 'green',
     },
@@ -33,8 +33,7 @@ export default StyleSheet.create({
         borderColor: 'gray',
         borderTopWidth: 1,
     },
-    //box2-row1
-    row1: {
+    flatListRow: {
         flex: 1,
         flexDirection: 'row',
         padding: 10,
@@ -43,38 +42,33 @@ export default StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomLeftRadius: 15,
     },
-    //box2-R1-C1
-    box2R1C1: {
+    flatListRowC1: {
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    //box2-R1-C2
-    box2R1C2: {
+    flatListRowC2: {
         flex: 9,
         flexDirection: 'column',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
     },
-    //box2-R1-C3
-    box2R1C3: {
+    flatListRowC3: {
         flex: 2,
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    //box2-R1-C1-A
-    box2R1C1A: {
+    flatListRowC1A: {
         flex: 1,
         paddingBottom: 3,
     },
-    //box2-R1-C1-B
-    box2R1C1B: {
+    flatListRowC1B: {
         flex: 1,
     },
-    //box2-row2
-    row2: {
+    //setting screen
+    settingFormRow: {
         flexDirection: 'row',
         padding: 10,
         borderStyle: 'solid',
@@ -82,32 +76,34 @@ export default StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomLeftRadius: 15,
     },
-    //box2-R2-C1
-    box2R2C1: {
+    settingFormColA: {
         flex: 4,
         flexDirection: 'column',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
     },
-    //box2-R2-C2
-    box2R2C2: {
+    settingFormColB: {
         flex: 8,
         flexDirection: 'column',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
     },
-    //box2-row2-textinput
-    row2TextInput: {
+    settingFormRowTextInput: {
         color: 'gray',
     },
-    //box2-row3
-    row3: {
+    settingFormBtnRow: {
         flexDirection: 'row',
+        padding: 50,
     },
-    //box2-row3-btn
-    row3Btn: {
+    settingFormBtn: {
         flex: 8,
         flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    settingFormRowTitle: {
+        flexDirection: 'row',
+        padding: 15,
         alignItems: 'center',
         justifyContent: 'center',
     },

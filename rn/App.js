@@ -26,11 +26,13 @@ var userInfo = {
     accessID: 'admin',
     accessSecret: 'xxx',
     tail: '20',
+    since: '-24h',
   },
   endpoint: '',
   accessID: '',
   accessSecret: '',
   tail: '',
+  since: '',
   active: {
     env: '',
     urlPrefix: '',
@@ -135,12 +137,12 @@ class ProjectEnvScreen extends React.Component {
                 userInfo.active = item;
                 this.props.navigation.navigate('ProjectList');
               }}>
-                <View style={styles.row1}>
-                  <View style={styles.box2R1C1}>
-                    <Text style={styles.box2R1C1A}>{iconDefault.project}</Text>
+                <View style={styles.flatListRow}>
+                  <View style={styles.flatListRowC1}>
+                    <Text style={styles.flatListRowC1A}>{iconDefault.project}</Text>
                   </View>
-                  <View style={styles.box2R1C2}>
-                    <Text style={styles.box2R1C2A}>{item.env}</Text>
+                  <View style={styles.flatListRowC2}>
+                    <Text style={styles.flatListRowC2A}>{item.env}</Text>
                   </View>
                 </View>
               </TouchableHighlight>
@@ -226,15 +228,15 @@ class ProjectListScreen extends React.Component {
                   projectName: item.name,
                 });
               }}>
-                <View style={styles.row1}>
-                  <View style={styles.box2R1C1}>
-                    <Text style={styles.box2R1C1A}>{item.icon == '' ? iconDefault.project : item.icon}</Text>
+                <View style={styles.flatListRow}>
+                  <View style={styles.flatListRowC1}>
+                    <Text style={styles.flatListRowC1A}>{item.icon == '' ? iconDefault.project : item.icon}</Text>
                   </View>
-                  <View style={styles.box2R1C2}>
-                    <Text style={styles.box2R1C2A}>{item.name}</Text>
+                  <View style={styles.flatListRowC2}>
+                    <Text style={styles.flatListRowC2A}>{item.name}</Text>
                   </View>
-                  <View style={styles.box2R1C3}>
-                    <Text style={styles.box2R1C3A}>{item.status == '1' ? iconDefault.blue : iconDefault.red}</Text>
+                  <View style={styles.flatListRowC3}>
+                    <Text style={styles.flatListRowC3A}>{item.status == '1' ? iconDefault.blue : iconDefault.red}</Text>
                   </View>
                 </View>
               </TouchableHighlight>
@@ -319,22 +321,22 @@ class ProjectDetailsScreen extends React.Component {
           <FlatList
             data={this.state.dataSource}
             renderItem={({ item }) => (
-              <View style={styles.row1}>
-                <View style={styles.box2R1C1}>
-                  <Text style={styles.box2R1C1A}>{this.state.projectIcon}</Text>
+              <View style={styles.flatListRow}>
+                <View style={styles.flatListRowC1}>
+                  <Text style={styles.flatListRowC1A}>{this.state.projectIcon}</Text>
                 </View>
-                <View style={styles.box2R1C2}>
-                  <Text style={styles.box2R1C1A}>{item.name}</Text>
-                  <Text style={styles.box2R1C1B}>{item.image}</Text>
+                <View style={styles.flatListRowC2}>
+                  <Text style={styles.flatListRowC1A}>{item.name}</Text>
+                  <Text style={styles.flatListRowC1B}>{item.image}</Text>
                 </View>
-                <View style={styles.box2R1C3}>
-                  <Text style={styles.box2R1C1A}>{item.replicas}</Text>
+                <View style={styles.flatListRowC3}>
+                  <Text style={styles.flatListRowC1A}>{item.replicas}</Text>
                   <Button
                     onPress={() => this.props.navigation.navigate('LogsModal', {
                       serviceID: item.id,
                     })}
                     title={iconDefault.log}
-                    style={styles.box2R1C1B}
+                    style={styles.flatListRowC1B}
                   />
                 </View>
               </View>
@@ -363,6 +365,7 @@ class LogsModalScreen extends React.Component {
       errMsg: '',
       serviceID: serviceID,
       tail: userInfo.tail,
+      since: userInfo.since,
     }
   }
 
@@ -380,6 +383,7 @@ class LogsModalScreen extends React.Component {
           'runEnv': userInfo.active.env,
           'serviceID': this.state.serviceID,
           'tail': this.state.tail,
+          'since': this.state.since,
         })
       });
       console.info(response);
@@ -415,11 +419,11 @@ class LogsModalScreen extends React.Component {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <View style={styles.msg}>
-          <Text style={styles.subtitle}>Last {this.state.tail} lines of service logs</Text>
+          <Text style={styles.subtitle}>Show last {this.state.tail} logs since {this.state.since} ago</Text>
         </View>
         <View style={styles.content}>
           <ScrollView>
-            <View style={styles.box2R1C1}>
+            <View style={styles.flatListRowC1}>
               <Text>{this.state.dataSource}</Text>
               <Button
                 onPress={() => this.props.navigation.goBack()}
@@ -444,7 +448,7 @@ class ProfileScreen extends React.Component {
   }
 
   _onGetData() {
-    let keyUserInfo = ['activeEndpoint', 'activeAccessID', 'activeAccessSecret', 'activeTail']
+    let keyUserInfo = ['activeEndpoint', 'activeAccessID', 'activeAccessSecret', 'activeTail', 'activeSince']
 
     AsyncStorage.multiGet(keyUserInfo, (errs, result) => {
       if (!errs) {
@@ -452,6 +456,7 @@ class ProfileScreen extends React.Component {
         userInfo.accessID = (result[1][1] !== null) ? result[1][1] : userInfo.default.accessID;
         userInfo.accessSecret = (result[2][1] !== null) ? result[2][1] : userInfo.default.accessSecret;
         userInfo.tail = (result[3][1] !== null) ? result[3][1] : userInfo.default.tail;
+        userInfo.since = (result[4][1] !== null) ? result[4][1] : userInfo.default.since;
         //console.log("_onGetData");
       }
     });
@@ -484,6 +489,7 @@ class SettingsScreen extends React.Component {
       activeAccessID: userInfo.accessID,
       activeAccessSecret: userInfo.accessSecret,
       activeTail: userInfo.tail,
+      activeSince: userInfo.since,
     }
   }
 
@@ -492,12 +498,14 @@ class SettingsScreen extends React.Component {
     userInfo.accessID = this.state.activeAccessID;
     userInfo.accessSecret = this.state.activeAccessSecret;
     userInfo.tail = this.state.activeTail;
+    userInfo.since = this.state.activeSince;
 
     let kvUserInfo = [
       ['activeEndpoint', this.state.activeEndpoint],
       ['activeAccessID', this.state.activeAccessID],
       ['activeAccessSecret', this.state.activeAccessSecret],
-      ['activeTail', userInfo.default.tail],
+      ['activeTail', this.state.activeTail],
+      ['activeSince', this.state.activeSince],
     ]
 
     AsyncStorage.multiSet(kvUserInfo, (errs) => {
@@ -513,8 +521,9 @@ class SettingsScreen extends React.Component {
     userInfo.accessID = userInfo.default.accessID;
     userInfo.accessSecret = userInfo.default.accessSecret;
     userInfo.tail = userInfo.default.tail;
+    userInfo.since = userInfo.default.since;
 
-    let keyUserInfo = ['activeEndpoint', 'activeAccessID', 'activeAccessSecret', 'activeTail']
+    let keyUserInfo = ['activeEndpoint', 'activeAccessID', 'activeAccessSecret', 'activeTail', 'activeSince']
 
     AsyncStorage.multiRemove(keyUserInfo, (errs) => {
       if (!errs) {
@@ -529,65 +538,84 @@ class SettingsScreen extends React.Component {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <View style={styles.content}>
-          <View style={styles.row2}>
-            <View style={styles.box2R2C1}>
+          <View style={styles.settingFormRowTitle}>
+            <Text>User Info</Text>
+          </View>
+          <View style={styles.settingFormRow}>
+            <View style={styles.settingFormColA}>
               <Text>Endpoint</Text>
             </View>
-            <View style={styles.box2R2C2}>
+            <View style={styles.settingFormColB}>
               <TextInput
                 ref="endpoint"
-                style={styles.row2TextInput}
+                style={styles.settingFormRowTextInput}
                 onChangeText={(text) => this.setState({ activeEndpoint: text })}
                 onEndEditing={(event) => this.setState({ activeEndpoint: event.nativeEvent.text })}
                 onSubmitEditing={(event) => this.refs.accessID.focus()}
-                autoFocus={true}
               >{userInfo.endpoint}</TextInput>
             </View>
           </View>
-          <View style={styles.row2}>
-            <View style={styles.box2R2C1}>
+          <View style={styles.settingFormRow}>
+            <View style={styles.settingFormColA}>
               <Text>AccessID</Text>
             </View>
-            <View style={styles.box2R2C2}>
+            <View style={styles.settingFormColB}>
               <TextInput
                 ref="accessID"
-                style={styles.row2TextInput}
+                style={styles.settingFormRowTextInput}
                 onChangeText={(text) => this.setState({ activeAccessID: text })}
                 onEndEditing={(event) => this.setState({ activeAccessID: event.nativeEvent.text })}
                 onSubmitEditing={(event) => this.refs.accessSecret.focus()}
               >{userInfo.accessID}</TextInput>
             </View>
           </View>
-          <View style={styles.row2}>
-            <View style={styles.box2R2C1}>
+          <View style={styles.settingFormRow}>
+            <View style={styles.settingFormColA}>
               <Text>AccessSecret</Text>
             </View>
-            <View style={styles.box2R2C2}>
+            <View style={styles.settingFormColB}>
               <TextInput
                 ref="accessSecret"
                 secureTextEntry={true}
-                style={styles.row2TextInput}
+                style={styles.settingFormRowTextInput}
                 onChangeText={(text) => this.setState({ activeAccessSecret: text })}
                 onEndEditing={(event) => this.setState({ activeAccessSecret: event.nativeEvent.text })}
                 onSubmitEditing={(event) => this.refs.tail.focus()}
               >{userInfo.accessSecret}</TextInput>
             </View>
           </View>
-          <View style={styles.row2}>
-            <View style={styles.box2R2C1}>
+          <View style={styles.settingFormRowTitle}>
+            <Text>Service Logs</Text>
+          </View>
+          <View style={styles.settingFormRow}>
+            <View style={styles.settingFormColA}>
               <Text>Tail</Text>
             </View>
-            <View style={styles.box2R2C2}>
+            <View style={styles.settingFormColB}>
               <TextInput
                 ref="tail"
-                style={styles.row2TextInput}
+                style={styles.settingFormRowTextInput}
                 onChangeText={(text) => this.setState({ activeTail: text })}
                 onEndEditing={(event) => this.setState({ activeTail: event.nativeEvent.text })}
+                autoFocus={true}
               >{userInfo.tail}</TextInput>
             </View>
           </View>
-          <View style={styles.row3}>
-            <View style={styles.row3Btn}>
+          <View style={styles.settingFormRow}>
+            <View style={styles.settingFormColA}>
+              <Text>Since</Text>
+            </View>
+            <View style={styles.settingFormColB}>
+              <TextInput
+                ref="since"
+                style={styles.settingFormRowTextInput}
+                onChangeText={(text) => this.setState({ activeSince: text })}
+                onEndEditing={(event) => this.setState({ activeSince: event.nativeEvent.text })}
+              >{userInfo.since}</TextInput>
+            </View>
+          </View>
+          <View style={styles.settingFormBtnRow}>
+            <View style={styles.settingFormBtn}>
               <Button
                 title="Apply"
                 onPress={() => this._onSetData()}
