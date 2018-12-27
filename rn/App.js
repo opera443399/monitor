@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   AsyncStorage,
+  Alert,
   FlatList,
   StatusBar,
   Text,
@@ -443,6 +444,13 @@ class ProfileScreen extends React.Component {
     title: 'Profile',
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+    }
+  }
+
   componentDidMount() {
     this._onGetData();
   }
@@ -458,15 +466,29 @@ class ProfileScreen extends React.Component {
         userInfo.tail = (result[3][1] !== null) ? result[3][1] : userInfo.default.tail;
         userInfo.since = (result[4][1] !== null) ? result[4][1] : userInfo.default.since;
         //console.log("_onGetData");
+        this.setState({
+          isLoading: false,
+        });
       }
     });
   }
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.msg}>
+          <StatusBar barStyle="light-content" />
+          <View style={styles.isLoading}>
+            <ActivityIndicator />
+          </View>
+        </View>
+      )
+    }
+
     return (
       <View style={styles.msg}>
         <StatusBar barStyle="light-content" />
-        <Text>Profile View</Text>
+        <Text>Hello {userInfo.accessID}</Text>
         <Button
           title="Go to Settings"
           onPress={() => this.props.navigation.navigate('Settings')}
@@ -510,7 +532,7 @@ class SettingsScreen extends React.Component {
 
     AsyncStorage.multiSet(kvUserInfo, (errs) => {
       if (!errs) {
-        alert("Saved!");
+        Alert.alert("Tips", "Saved!", [{ text: 'OK' }]);
         //console.log("_onSetData");
       }
     });
@@ -527,7 +549,7 @@ class SettingsScreen extends React.Component {
 
     AsyncStorage.multiRemove(keyUserInfo, (errs) => {
       if (!errs) {
-        alert("Done!");
+        Alert.alert("Tips", "Reset!", [{ text: 'OK' }]);
         //console.log("_onResetData");
       }
     });
@@ -597,7 +619,6 @@ class SettingsScreen extends React.Component {
                 style={styles.settingFormRowTextInput}
                 onChangeText={(text) => this.setState({ activeTail: text })}
                 onEndEditing={(event) => this.setState({ activeTail: event.nativeEvent.text })}
-                autoFocus={true}
               >{userInfo.tail}</TextInput>
             </View>
           </View>
