@@ -24,6 +24,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"net/http"
 
@@ -153,7 +154,7 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(svcs)
 }
 
-// curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx","runEnv":"local","serviceID":"saz35fg0b8","tail":"20"}' 127.0.0.1/service/logs
+// curl -s -X POST -H "Content-Type:application/json" -d '{"accessToken":"xxx","runEnv":"local","serviceID":"saz35fg0b8","tail":"20","since":"-24h"}' 127.0.0.1/service/logs
 func serviceLogsHandler(w http.ResponseWriter, r *http.Request) {
 	data := ParseService{}
 
@@ -174,10 +175,16 @@ func serviceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	//------ list service with filter
+	//------ get service logs with options
+	dtNow := time.Now()
+	//dtSince, _ := time.ParseDuration("-24h")
+	dtSince, _ := time.ParseDuration(data.Since)
+	dtSinceNow := fmt.Sprintf("%v", dtNow.Add(dtSince).Format(time.RFC3339Nano))
+
 	fSvcLogs := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
+		Since:      dtSinceNow,
 		Timestamps: true,
 		Tail:       data.Tail,
 	}

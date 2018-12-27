@@ -25,6 +25,7 @@ type ParseService struct {
 	RunEnv      string `json:"runEnv"`
 	ServiceID   string `json:"serviceID"`
 	Tail        string `json:"tail"`
+	Since       string `json:"since"`
 }
 
 //Project desc a project

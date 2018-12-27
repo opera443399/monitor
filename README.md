@@ -1,6 +1,6 @@
 # monitor
 
-2018/12/26
+2018/12/27
 
 ## POC
 
@@ -85,6 +85,7 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/env '
   * run on Linux
 
   ```bash
+  docker pull opera443399/monitor
   test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
   docker rm -f monitor
 
@@ -104,6 +105,7 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/env '
   * run on Mac
 
   ```bash
+  docker pull opera443399/monitor
   test $(docker ps -a -f name=monitor -q |wc -l) -eq 0 || \
   docker rm -f monitor
 
