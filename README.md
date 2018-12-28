@@ -1,7 +1,5 @@
 # monitor
 
-2018/12/27
-
 ## POC
 
 ### Backend init
@@ -94,7 +92,7 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/env '
       -p "80:12000" \
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v /etc/localtime:/etc/localtime \
-      -e ETCD_BACKEND_NODES="127.0.0.1:2379" \
+      -e KV_BACKEND_NODES="127.0.0.1:2379" \
       -e LOG_LEVEL="debug" \
       opera443399/monitor
 
@@ -113,7 +111,7 @@ ETCDCTL_API=3 /usr/local/bin/etcdctl put /monitor/userinfo/admin/env '
       --name monitor \
       -p "80:12000" \
       -v /var/run/docker.sock:/var/run/docker.sock \
-      -e ETCD_BACKEND_NODES="127.0.0.1:2379" \
+      -e KV_BACKEND_NODES="127.0.0.1:2379" \
       -e LOG_LEVEL="debug" \
       opera443399/monitor
 

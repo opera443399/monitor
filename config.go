@@ -30,32 +30,32 @@ func processEnv() {
 		config.DockerAPIVersion = dockerAPIVersion
 	}
 
-	kvPrefix := os.Getenv("KV_PREFIX")
-	if len(kvPrefix) > 0 {
-		config.KVPrefix = kvPrefix
-	}
-
 	logLevel := os.Getenv("LOG_LEVEL")
 	if len(logLevel) > 0 {
 		config.LogLevel = logLevel
 	}
 
-	nodes := os.Getenv("ETCD_BACKEND_NODES")
+	kvPrefix := os.Getenv("KV_PREFIX")
+	if len(kvPrefix) > 0 {
+		config.KVPrefix = kvPrefix
+	}
+
+	nodes := os.Getenv("KV_BACKEND_NODES")
 	if len(nodes) > 0 {
 		config.BackendNodes = []string{nodes}
 	}
 
-	cakeys := os.Getenv("ETCD_CLIENT_CAKEYS")
+	cakeys := os.Getenv("KV_CLIENT_CAKEYS")
 	if len(cakeys) > 0 {
 		config.ClientCaKeys = cakeys
 	}
 
-	cert := os.Getenv("ETCD_CLIENT_CERT")
+	cert := os.Getenv("KV_CLIENT_CERT")
 	if len(cert) > 0 {
 		config.ClientCert = cert
 	}
 
-	key := os.Getenv("ETCD_CLIENT_KEY")
+	key := os.Getenv("KV_CLIENT_KEY")
 	if len(key) > 0 {
 		config.ClientKey = key
 	}
